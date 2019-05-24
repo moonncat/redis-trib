@@ -55,7 +55,30 @@ $ports|ForEach-Object{
 }
 
 # set Hash-Slot, assign all slot to primary node
-for ($slot=0;$slot -le 16383;$slot++) { .\redis-cli.exe -h 127.0.0.1 -p $ports[0] CLUSTER ADDSLOTS $slot }
+
+
+$sb={param($slotFrom,$slotTo)
+    for ($slot=$slotFrom;$slot -le $slotTo;$slot++) { 
+        Write-Host "hash slot: $slot"
+        .\redis-cli.exe -h 127.0.0.1 -p $ports[0] CLUSTER ADDSLOTS $slot 
+    }
+}
+
+Start-Job -ScriptBlock $sb -ArgumentList @(0,1638)
+Start-Job -ScriptBlock $sb -ArgumentList @(1639,3278)
+Start-Job -ScriptBlock $sb -ArgumentList @(3279,4917)
+Start-Job -ScriptBlock $sb -ArgumentList @(4918,6556)
+Start-Job -ScriptBlock $sb -ArgumentList @(6557,8195)
+Start-Job -ScriptBlock $sb -ArgumentList @(8196,9834)
+Start-Job -ScriptBlock $sb -ArgumentList @(9835,11473)
+Start-Job -ScriptBlock $sb -ArgumentList @(11474,13112)
+Start-Job -ScriptBlock $sb -ArgumentList @(13113,14751)
+Start-Job -ScriptBlock $sb -ArgumentList @(14752,16383)
+
+Get-Job|Wait-Job
 
 # check-nodes
 .\redis-cli -c -h 127.0.0.1 -p $ports[0] cluster nodes
+
+
+Write-Host "done"
